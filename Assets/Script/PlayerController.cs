@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody playerRb;
 
-    bool planeB = false;
+    int planeIndicator = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +35,8 @@ public class PlayerController : MonoBehaviour
         // Move Player (GameObject) according to user interactions
 
         // Player Border at Z Axis
-        if (collision.gameObject.CompareTag("PlaneA"))
+        if (planeIndicator == 0)
+        {
             if (transform.position.z < -limit)
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, -limit);
@@ -52,7 +53,7 @@ public class PlayerController : MonoBehaviour
             // Player Border at X Axis
             if (transform.position.x < -limit)
             {
-            transform.position = new Vector3(-limit, transform.position.y, transform.position.z);
+                transform.position = new Vector3(-limit, transform.position.y, transform.position.z);
             }
             else if (transform.position.x > limit)
             {
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
             {
                 transform.Translate(Vector3.right * Time.deltaTime * horizontalInput * speed);
             }
+        }
 
         // Jump Code
         if (Input.GetKeyDown(KeyCode.Space) && jumpTimes < 2)
@@ -76,14 +78,21 @@ public class PlayerController : MonoBehaviour
     // Event Listener for a collision by the GameObject "Player" with another possible GameObject
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("PlaneA" || "PlaneB"))
+        if (collision.gameObject.CompareTag("Ground"))
         {
             jumpTimes = 0;
         }
 
         if (collision.gameObject.CompareTag("PlaneA"))
         {
-            debug.log
+            Debug.Log("Ïn Plane A");
+            planeIndicator = 0;
+        }
+
+        if (collision.gameObject.CompareTag("PlaneB"))
+        {
+            Debug.Log("Ïn Plane B");
+            planeIndicator = 1;
         }
     }
 
