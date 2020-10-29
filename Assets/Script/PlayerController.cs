@@ -6,8 +6,9 @@ public class PlayerController : MonoBehaviour
 {
     // Declare and Initialise variables
     float speed = 10.0f;
-    float limit = 9.5f;
-    float enter = 4.5f;
+    float limit = 10f;
+    float planeBz = 20.0f;
+    float planeBx = 5.0f;
 
     float gravityModifier = 2.5f;
     int jumpTimes = 0;
@@ -33,42 +34,63 @@ public class PlayerController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
 
         // Move Player (GameObject) according to user interactions
+        transform.Translate(Vector3.forward * Time.deltaTime * verticalInput * speed);
+        transform.Translate(Vector3.right * Time.deltaTime * horizontalInput * speed);
 
-        // Player Border at Z Axis
+        // Plane A
         if (planeIndicator == 0)
         {
             if (transform.position.z < -limit)
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, -limit);
             }
-            else if (transform.position.z > limit)
+            if (transform.position.z > limit && transform.position.x > planeBx)
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, limit);
             }
-            else
+            if (transform.position.z > limit && transform.position.x < -planeBx)
             {
-                transform.Translate(Vector3.forward * Time.deltaTime * verticalInput * speed);
+                transform.position = new Vector3(transform.position.x, transform.position.y, limit);
             }
-
-            // Player Border at X Axis
             if (transform.position.x < -limit)
             {
                 transform.position = new Vector3(-limit, transform.position.y, transform.position.z);
             }
-            else if (transform.position.x > limit)
+            if (transform.position.x > limit)
             {
                 transform.position = new Vector3(limit, transform.position.y, transform.position.z);
             }
-            else
+        }
+        // Plane B
+        if (planeIndicator == 1)
+        {
+            if (transform.position.x < -planeBx)
             {
-                transform.Translate(Vector3.right * Time.deltaTime * horizontalInput * speed);
+                transform.position = new Vector3(-planeBx, transform.position.y, transform.position.z);
+            }
+            if (transform.position.x > planeBx)
+            {
+                transform.position = new Vector3(planeBx, transform.position.y, transform.position.z);
+            }
+            if (transform.position.z < -limit)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, -limit);
+            }
+            if ( transform.position.z > planeBz)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, planeBz);
             }
         }
 
-        // Jump Code
+        JumpPlayer();
+    }   
+
+    // Jump Code
+    private void JumpPlayer()
+    {
         if (Input.GetKeyDown(KeyCode.Space) && jumpTimes < 2)
         {
-            playerRb.AddForce(Vector3.up * 10, ForceMode.Impulse);
+            playerRb.AddForce(Vector3.up * 8, ForceMode.Impulse);
 
             // Track my jump if single jump or double jump
             jumpTimes++;
@@ -78,21 +100,18 @@ public class PlayerController : MonoBehaviour
     // Event Listener for a collision by the GameObject "Player" with another possible GameObject
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            jumpTimes = 0;
-        }
-
         if (collision.gameObject.CompareTag("PlaneA"))
         {
             Debug.Log("Ïn Plane A");
             planeIndicator = 0;
+            jumpTimes = 0;
         }
 
         if (collision.gameObject.CompareTag("PlaneB"))
         {
             Debug.Log("Ïn Plane B");
             planeIndicator = 1;
+            jumpTimes = 0;
         }
     }
 
